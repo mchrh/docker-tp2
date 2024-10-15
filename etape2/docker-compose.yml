@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  http:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./app:/app
+    depends_on:
+      - script
+
+  script:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    volumes:
+      - ./app:/app
+    depends_on:
+      - data
+
+  data:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
